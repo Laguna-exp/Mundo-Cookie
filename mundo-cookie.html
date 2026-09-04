@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laguna Experience · Mundo Cookie</title>
+<style>
+  :root{
+    --ink:#2e2016; --ink-soft:#71594a;
+    --sand:#faf1e4; --paper:#fffdf9;
+    --choco:#7a4a26; --choco-deep:#4f2f16; --choco-light:#f1e2d1;
+    --pink:#d9678a; --pink-light:#fbe4ec;
+    --mint:#3f9b7d; --mint-light:#e1f3ec;
+    --coral:#d9633b; --coral-light:#fbe6dc;
+    --line:#ecdcc6;
+    --radius:14px; --shadow:0 6px 20px rgba(60,35,15,.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Segoe UI',system-ui,sans-serif; background:var(--sand); color:var(--ink); line-height:1.5;}
+  header{background:linear-gradient(120deg,var(--choco-deep),var(--choco) 70%, var(--pink) 140%); color:#fff; padding:26px 32px 60px; position:relative; overflow:hidden;}
+  header::after{content:"";position:absolute; right:-40px; bottom:-60px; width:220px;height:220px;border-radius:50%; background:rgba(255,255,255,.08);}
+  .eyebrow{font-size:12px; letter-spacing:.18em; text-transform:uppercase; opacity:.85; margin:0 0 6px;}
+  h1{font-family:Georgia,serif; font-weight:600; font-size:32px; margin:0;}
+  .sub{opacity:.9; font-size:14.5px; margin-top:6px; max-width:580px;}
+  .wrap{
+    max-width:1100px; margin:40px auto 60px; padding:0 24px;
+  }
+  nav.tabs{display:flex; gap:8px; background:var(--paper); border-radius:999px; padding:6px; box-shadow:var(--shadow); margin-bottom:24px; flex-wrap:wrap;}
+  nav.tabs button{border:none; background:transparent; padding:10px 18px; border-radius:999px; font-size:14px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  nav.tabs button.active{background:var(--choco); color:#fff;}
+  nav.tabs button:hover:not(.active){background:var(--choco-light);}
+  section.panel{display:none;}
+  section.panel.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+  .card{background:var(--paper); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 24px; margin-bottom:18px; border:1px solid var(--line);}
+  .card h2{margin:0 0 4px; font-family:Georgia,serif; font-size:20px;}
+  .card p.hint{margin:0 0 16px; color:var(--ink-soft); font-size:13.5px;}
+  .grid-prod{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px;}
+  .prod{border:1px solid var(--line); border-radius:12px; padding:16px; background:#fff;}
+  .prod h3{margin:0 0 4px; font-size:15.5px;}
+  .prod .meta{font-size:12.5px; color:var(--ink-soft);}
+  .prod .price{margin-top:8px; font-weight:700; color:var(--choco-deep); font-size:15px;}
+  .badge{display:inline-block; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; text-transform:uppercase;}
+  .b-stock{background:#dff3e6; color:#1c7a45;}
+  .b-sinstock{background:var(--coral-light); color:#a8391c;}
+  .b-cupos{background:var(--mint-light); color:#1f6b52;}
+  .b-sincupos{background:var(--coral-light); color:#a8391c;}
+  label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin:12px 0 4px;}
+  select, input{width:100%; padding:9px 11px; border-radius:8px; border:1px solid var(--line); font-size:14px; font-family:inherit; background:#fff;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  button.action{margin-top:16px; background:var(--choco); color:#fff; border:none; padding:11px 20px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer;}
+  button.action:hover{background:var(--choco-deep);}
+  button.action.ghost{background:transparent; border:1.5px solid var(--choco); color:var(--choco);}
+  button.action.ghost:hover{background:var(--choco-light);}
+  button.action.pink{background:var(--pink);}
+  button.action.pink:hover{background:#b34a68;}
+  button.action.mint{background:var(--mint);}
+  button.action.mint:hover{background:#2c7a60;}
+  .msg{padding:11px 14px; border-radius:9px; font-size:13.5px; margin-top:14px; display:none;}
+  .msg.show{display:block;}
+  .msg.ok{background:#dff3e6; color:#1c7a45;}
+  .msg.err{background:var(--coral-light); color:#a8391c;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line);}
+  th{color:var(--ink-soft); font-size:11.5px; text-transform:uppercase;}
+  .pill-band{display:inline-flex; align-items:center; gap:6px; background:var(--choco-light); color:var(--choco-deep); padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700;}
+  .pill-band .dot{width:7px;height:7px;border-radius:50%; background:var(--choco);}
+  .cart-item{display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--line); font-size:13.5px;}
+  .total-line{display:flex; justify-content:space-between; font-weight:700; margin-top:10px; font-size:15px;}
+  .empty{color:var(--ink-soft); font-size:13.5px; font-style:italic;}
+  footer{text-align:center; color:var(--ink-soft); font-size:12px; padding:30px 0 10px;}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Laguna Experience · Sistema interno</p>
+  <h1>Mundo Cookie</h1>
+  <p class="sub">Tienda de productos con control de stock y talleres con cupos, todo asociado a la pulsera.</p>
+</header>
+
+<div class="wrap">
+  <nav class="tabs">
+    <button data-tab="productos" class="active">Comprar productos</button>
+    <button data-tab="talleres">Talleres</button>
+    <button data-tab="historial">Historial</button>
+  </nav>
+
+  <!-- PRODUCTOS -->
+  <section class="panel active" id="tab-productos">
+    <div class="card">
+      <h2>Catálogo de productos</h2>
+      <p class="hint">No se puede vender un producto sin stock disponible.</p>
+      <div class="grid-prod" id="prodGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Nueva venta</h2>
+      <div class="row2">
+        <div><label>Visitante</label><input id="vVisitante" placeholder="Nombre y apellido"></div>
+        <div><label>Código de pulsera</label><input id="vPulsera" placeholder="Ej: PLS-1002"></div>
+      </div>
+      <div class="row2">
+        <div><label>Producto</label><select id="vProducto"></select></div>
+        <div><label>Cantidad</label><input id="vCantidad" type="number" min="1" value="1"></div>
+      </div>
+      <button class="action ghost" onclick="agregarAlCarrito()">Agregar al carrito</button>
+      <div id="carritoPreview" style="margin-top:12px"></div>
+      <button class="action" onclick="confirmarVenta()">Registrar pago y confirmar venta</button>
+      <div class="msg" id="msgVenta"></div>
+    </div>
+  </section>
+
+  <!-- TALLERES -->
+  <section class="panel" id="tab-talleres">
+    <div class="card">
+      <h2>Talleres disponibles</h2>
+      <p class="hint">No se puede reservar un taller sin cupos disponibles.</p>
+      <div class="grid-prod" id="tallerGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Reservar taller</h2>
+      <div class="row2">
+        <div><label>Visitante</label><input id="tVisitante" placeholder="Nombre y apellido"></div>
+        <div><label>Código de pulsera</label><input id="tPulsera" placeholder="Ej: PLS-1002"></div>
+      </div>
+      <label>Taller y horario</label>
+      <select id="tTaller"></select>
+      <button class="action mint" onclick="reservarTaller()">Reservar y pagar</button>
+      <div class="msg" id="msgTaller"></div>
+    </div>
+
+    <div class="card">
+      <h2>Registrar asistencia</h2>
+      <label>Reserva de taller</label>
+      <select id="aReserva"></select>
+      <button class="action pink" onclick="registrarAsistencia()">Registrar asistencia</button>
+      <div class="msg" id="msgAsistencia"></div>
+    </div>
+  </section>
+
+  <!-- HISTORIAL -->
+  <section class="panel" id="tab-historial">
+    <div class="card">
+      <h2>Ventas</h2>
+      <table id="tablaVentas"><thead><tr><th>Visitante</th><th>Pulsera</th><th>Items</th><th>Total</th><th>Puntos</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card">
+      <h2>Reservas de talleres</h2>
+      <table id="tablaTalleres"><thead><tr><th>Visitante</th><th>Pulsera</th><th>Taller</th><th>Horario</th><th>Asistencia</th><th>Puntos</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+</div>
+
+<footer>Laguna Experience — Módulo Mundo Cookie · Datos simulados en memoria</footer>
+
+<script>
+let productos = [
+  {id:1, nombre:"Cookie clásica", categoria:"Galletas", precio:2800, stock:24},
+  {id:2, nombre:"Cookie doble chocolate", categoria:"Galletas", precio:3200, stock:18},
+  {id:3, nombre:"Mix de decoración", categoria:"Kits", precio:8900, stock:6},
+  {id:4, nombre:"Taza Mundo Cookie", categoria:"Merchandising", precio:5400, stock:0},
+  {id:5, nombre:"Caja regalo x12", categoria:"Kits", precio:15600, stock:9},
+];
+let talleres = [
+  {id:1, nombre:"Decoración de cookies", horario:"Lun 16:00", cupoMax:10, cupoOcupado:7, precio:12000},
+  {id:2, nombre:"Cookies sin gluten", horario:"Mar 11:00", cupoMax:8, cupoOcupado:8, precio:13500},
+  {id:3, nombre:"Repostería para niños", horario:"Mié 15:00", cupoMax:12, cupoOcupado:5, precio:9800},
+  {id:4, nombre:"Masterclass avanzada", horario:"Vie 18:00", cupoMax:6, cupoOcupado:2, precio:19000},
+];
+let carrito = [];
+let ventas = [];
+let reservasTaller = [];
+let nextVentaId = 1;
+let nextReservaId = 1;
+
+function fmt(n){ return "$" + Number(n).toLocaleString("es-AR"); }
+function puntosPorMonto(monto){ return Math.round(monto / 1000); }
+
+function renderProdGrid(){
+  document.getElementById("prodGrid").innerHTML = productos.map(p=>`
+    <div class="prod">
+      <span class="badge ${p.stock>0?'b-stock':'b-sinstock'}">${p.stock>0?p.stock+' en stock':'sin stock'}</span>
+      <h3 style="margin-top:10px">${p.nombre}</h3>
+      <div class="meta">${p.categoria}</div>
+      <div class="price">${fmt(p.precio)}</div>
+    </div>`).join("");
+}
+function renderSelectProductos(){
+  document.getElementById("vProducto").innerHTML = productos.map(p=>`<option value="${p.id}" ${p.stock===0?'disabled':''}>${p.nombre} ${p.stock===0?'(sin stock)':'('+p.stock+' disp.)'}</option>`).join("");
+}
+
+function agregarAlCarrito(){
+  const msg = document.getElementById("msgVenta"); msg.className="msg";
+  const prodId = Number(document.getElementById("vProducto").value);
+  const cant = Number(document.getElementById("vCantidad").value);
+  const p = productos.find(p=>p.id===prodId);
+  if(!p) return showErr(msg,"Seleccioná un producto.");
+  const yaEnCarrito = carrito.filter(c=>c.prodId===prodId).reduce((a,c)=>a+c.cantidad,0);
+  if(cant<1) return showErr(msg,"La cantidad debe ser al menos 1.");
+  if(p.stock < cant + yaEnCarrito){
+    return showErr(msg, `No hay stock suficiente de ${p.nombre}. Disponible: ${p.stock - yaEnCarrito}.`);
+  }
+  carrito.push({prodId, nombre:p.nombre, cantidad:cant, precio:p.precio});
+  renderCarrito();
+}
+
+function renderCarrito(){
+  const cont = document.getElementById("carritoPreview");
+  if(carrito.length===0){ cont.innerHTML = `<p class="empty">Carrito vacío.</p>`; return; }
+  const total = carrito.reduce((a,c)=>a+c.cantidad*c.precio,0);
+  cont.innerHTML = carrito.map(c=>`<div class="cart-item"><span>${c.cantidad} × ${c.nombre}</span><span>${fmt(c.cantidad*c.precio)}</span></div>`).join("")
+    + `<div class="total-line"><span>Total</span><span>${fmt(total)}</span></div>`;
+}
+
+function confirmarVenta(){
+  const msg = document.getElementById("msgVenta");
+  const visitante = document.getElementById("vVisitante").value.trim();
+  const pulsera = document.getElementById("vPulsera").value.trim();
+  if(carrito.length===0) return showErr(msg,"Agregá al menos un producto al carrito.");
+  if(!visitante) return showErr(msg,"Ingresá el nombre del visitante.");
+  if(!pulsera) return showErr(msg,"Ingresá el código de pulsera para el pago.");
+
+  for(const c of carrito){
+    const p = productos.find(p=>p.id===c.prodId);
+    if(p.stock < c.cantidad){ return showErr(msg, `Sin stock suficiente de ${p.nombre} al confirmar la venta.`); }
+  }
+  const total = carrito.reduce((a,c)=>a+c.cantidad*c.precio,0);
+  carrito.forEach(c=>{ const p = productos.find(p=>p.id===c.prodId); p.stock -= c.cantidad; });
+  const puntos = puntosPorMonto(total);
+  ventas.push({id: nextVentaId++, visitante, pulsera, items:[...carrito], total, puntos});
+  showOk(msg, `Venta registrada: ${fmt(total)} pagados con la pulsera ${pulsera}. ${puntos} puntos generados.`);
+  carrito = [];
+  document.getElementById("vVisitante").value=""; document.getElementById("vPulsera").value="";
+  refreshAll();
+}
+
+function renderTallerGrid(){
+  document.getElementById("tallerGrid").innerHTML = talleres.map(t=>{
+    const libres = t.cupoMax - t.cupoOcupado;
+    return `<div class="prod">
+      <span class="badge ${libres>0?'b-cupos':'b-sincupos'}">${libres>0? libres+' cupos libres' : 'sin cupos'}</span>
+      <h3 style="margin-top:10px">${t.nombre}</h3>
+      <div class="meta">${t.horario} · cupo máx. ${t.cupoMax}</div>
+      <div class="price">${fmt(t.precio)}</div>
+    </div>`;
+  }).join("");
+}
+function renderSelectTalleres(){
+  document.getElementById("tTaller").innerHTML = talleres.map(t=>{
+    const libres = t.cupoMax - t.cupoOcupado;
+    return `<option value="${t.id}" ${libres<=0?'disabled':''}>${t.nombre} · ${t.horario} ${libres<=0?'(sin cupos)':'('+libres+' libres)'}</option>`;
+  }).join("");
+}
+
+function reservarTaller(){
+  const msg = document.getElementById("msgTaller"); msg.className="msg";
+  const visitante = document.getElementById("tVisitante").value.trim();
+  const pulsera = document.getElementById("tPulsera").value.trim();
+  const tallerId = Number(document.getElementById("tTaller").value);
+  const t = talleres.find(t=>t.id===tallerId);
+  if(!visitante) return showErr(msg,"Ingresá el nombre del visitante.");
+  if(!pulsera) return showErr(msg,"Ingresá el código de pulsera.");
+  if(!t) return showErr(msg,"Seleccioná un taller.");
+  const libres = t.cupoMax - t.cupoOcupado;
+  if(libres<=0) return showErr(msg, `${t.nombre} (${t.horario}) no tiene cupos disponibles.`);
+
+  t.cupoOcupado += 1;
+  const puntos = puntosPorMonto(t.precio);
+  reservasTaller.push({id: nextReservaId++, visitante, pulsera, tallerId, taller:t.nombre, horario:t.horario, asistencia:false, puntos});
+  showOk(msg, `Reserva confirmada para ${visitante} en "${t.nombre}" (${t.horario}), asociada a la pulsera ${pulsera}. Pago de ${fmt(t.precio)} registrado.`);
+  document.getElementById("tVisitante").value=""; document.getElementById("tPulsera").value="";
+  refreshAll();
+}
+
+function renderSelectAsistencia(){
+  const pendientes = reservasTaller.filter(r=>!r.asistencia);
+  document.getElementById("aReserva").innerHTML = pendientes.length
+    ? pendientes.map(r=>`<option value="${r.id}">${r.visitante} · ${r.taller} (${r.horario})</option>`).join("")
+    : `<option value="">No hay reservas pendientes de asistencia</option>`;
+}
+
+function registrarAsistencia(){
+  const msg = document.getElementById("msgAsistencia");
+  const id = Number(document.getElementById("aReserva").value);
+  const r = reservasTaller.find(r=>r.id===id);
+  if(!r) return showErr(msg,"Seleccioná una reserva válida.");
+  if(r.asistencia) return showErr(msg,"Esa asistencia ya fue registrada.");
+  r.asistencia = true;
+  showOk(msg, `Asistencia registrada para ${r.visitante} en "${r.taller}". ${r.puntos} puntos ya acreditados por la reserva.`);
+  refreshAll();
+}
+
+function renderTablaVentas(){
+  const tbody = document.querySelector("#tablaVentas tbody");
+  if(ventas.length===0){ tbody.innerHTML = `<tr><td colspan="5" class="empty">Todavía no hay ventas registradas.</td></tr>`; return; }
+  tbody.innerHTML = ventas.map(v=>`<tr>
+    <td>${v.visitante}</td>
+    <td><span class="pill-band"><span class="dot"></span>${v.pulsera}</span></td>
+    <td>${v.items.map(i=>i.cantidad+"× "+i.nombre).join(", ")}</td>
+    <td>${fmt(v.total)}</td><td>${v.puntos}</td>
+  </tr>`).join("");
+}
+function renderTablaTalleres(){
+  const tbody = document.querySelector("#tablaTalleres tbody");
+  if(reservasTaller.length===0){ tbody.innerHTML = `<tr><td colspan="6" class="empty">Todavía no hay reservas de talleres.</td></tr>`; return; }
+  tbody.innerHTML = reservasTaller.map(r=>`<tr>
+    <td>${r.visitante}</td>
+    <td><span class="pill-band"><span class="dot"></span>${r.pulsera}</span></td>
+    <td>${r.taller}</td><td>${r.horario}</td>
+    <td>${r.asistencia? "presente" : "pendiente"}</td><td>${r.puntos}</td>
+  </tr>`).join("");
+}
+
+function showOk(el,t){ el.className="msg show ok"; el.textContent=t; }
+function showErr(el,t){ el.className="msg show err"; el.textContent=t; }
+
+document.querySelectorAll("nav.tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("section.panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+    refreshAll();
+  });
+});
+
+function refreshAll(){
+  renderProdGrid(); renderSelectProductos(); renderCarrito();
+  renderTallerGrid(); renderSelectTalleres(); renderSelectAsistencia();
+  renderTablaVentas(); renderTablaTalleres();
+}
+
+(function init(){ refreshAll(); })();
+</script>
+</body>
+</html>
